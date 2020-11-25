@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1062
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelArt", "PixelArt\PixelArt.csproj", "{A46B2E00-BD05-483A-B628-12FCA837B717}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A46B2E00-BD05-483A-B628-12FCA837B717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A46B2E00-BD05-483A-B628-12FCA837B717}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A46B2E00-BD05-483A-B628-12FCA837B717}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A46B2E00-BD05-483A-B628-12FCA837B717}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEC1638B-3D47-487A-AFAD-B67FBE9C71EF}
+	EndGlobalSection
+EndGlobal
