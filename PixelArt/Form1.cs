@@ -14,16 +14,16 @@ namespace PixelArt
     public partial class Form1 : Form
     {
         // Змінні для зберігання статусу миші
-        public bool IsPressedLeft { get; set; } 
-        public bool IsPressedRight { get; set; } 
+        public bool IsPressedLeft { get; set; }
+        public bool IsPressedRight { get; set; }
 
         public Point FirstCord { get; set; } // Перша координата на полі при кліку миші по полю
         public Color LeftColor { get; set; } // Колір лівої кнопки миші
         public Color RightColor { get; set; } // Колір правої кнопки миші
 
         private Color FoneColor; // Колір який ми зафарбовуємо заливкою 
-        private bool CallFunction = true;
-        private static int count = 1;
+        private bool CallFunction = true; //Для контролю виклику функції збереження
+        private static int count = 1; // Для контролю палітри
         private item currItem;
 
         public Form1()
@@ -43,63 +43,43 @@ namespace PixelArt
 
         private void Fill(Point p) // Функція заливки потрібно переробити викидає тому що рекурсія
         {
-            int x, y;
+            int x;
+            int y;
+            int cord = 0;
+
             if (radioBtn16.Checked)
             {
-                foreach (var item in Field.Controls)
-                {
-                    x = ((PictureBox)item).Location.X;
-                    y = ((PictureBox)item).Location.Y;
-                    if (p.X == x && p.Y == y)
-                    {
-                        ((PictureBox)item).BackColor = RightColor;
-                        continue;
-                    }
-                    if (p.X == x && p.Y - 44 == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X + 44 == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X == x && p.Y + 44 == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X - 44 == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                }
+                cord = 44;
             }
-            if (radioBtn32.Checked)
+            else if (radioBtn32.Checked)
             {
-                foreach (var item in Field.Controls)
+                cord = 22;
+            }
+
+            foreach (var item in Field.Controls)
+            {
+                x = ((PictureBox)item).Location.X;
+                y = ((PictureBox)item).Location.Y;
+                if (p.X == x && p.Y == y)
                 {
-                    x = ((PictureBox)item).Location.X;
-                    y = ((PictureBox)item).Location.Y;
-                    if (p.X == x && p.Y == y)
-                    {
-                        ((PictureBox)item).BackColor = RightColor;
-                        continue;
-                    }
-                    if (p.X == x && p.Y - 22 == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X + 22 == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X == x && p.Y + 22 == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
-                    if (p.X - 22 == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
-                    {
-                        Fill(new Point(x, y));
-                    }
+                    ((PictureBox)item).BackColor = RightColor;
+                    continue;
+                }
+                if (p.X == x && p.Y - cord == y && ((PictureBox)item).BackColor == FoneColor)
+                {
+                    Fill(new Point(x, y));
+                }
+                if (p.X + cord == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
+                {
+                    Fill(new Point(x, y));
+                }
+                if (p.X == x && p.Y + cord == y && ((PictureBox)item).BackColor == FoneColor)
+                {
+                    Fill(new Point(x, y));
+                }
+                if (p.X - cord == x && p.Y == y && ((PictureBox)item).BackColor == FoneColor)
+                {
+                    Fill(new Point(x, y));
                 }
             }
         }
@@ -175,139 +155,82 @@ namespace PixelArt
 
         private void PixelMouseMove(object sender, MouseEventArgs e) // Якщо мишка рухається по формі то ...
         {
-            int x, y, count = 0;
+            int x;
+            int y;
+            int count = 0;
+            int divCord = 0;
+            int numberOfPixels = 0;
+            Color color = Color.Empty;
+
             FirstCord = (Point)sender.GetType().GetProperty("Location").GetValue(sender);
+
+            if (radioBtn16.Checked)
+            {
+                divCord = 40;
+                numberOfPixels = 256;
+            }
+            else if (radioBtn32.Checked)
+            {
+                divCord = 20;
+                numberOfPixels = 1024;
+            }
+
             switch (currItem)
             {
                 case item.Pencil:
                     {
-                        if (radioBtn16.Checked)
+                        if (IsPressedLeft == true)
                         {
-                            if (IsPressedLeft == true)
+                            color = LeftColor;
+                        }
+                        else if (IsPressedRight == true)
+                        {
+                            color = RightColor;
+                        }
+
+                        foreach (var item in Field.Controls)
+                        {
+                            if (item is PictureBox)
                             {
-                                foreach (var item in Field.Controls)
+                                if (count == numberOfPixels)
+                                    break;
+
+                                x = ((PictureBox)item).Location.X;
+                                y = ((PictureBox)item).Location.Y;
+
+                                if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + divCord &&
+                                    e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + divCord)
                                 {
-                                    if (item is PictureBox)
-                                    {
-                                        if (count == 256)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 40 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 40)
-                                        {
-                                            ((PictureBox)item).BackColor = LeftColor;
-                                            break;
-                                        }
-                                        count++;
-                                    }
+                                    ((PictureBox)item).BackColor = color;
+                                    break;
                                 }
-                            }
-                            else if (IsPressedRight == true)
-                            {
-                                foreach (var item in Field.Controls)
-                                {
-                                    if (item is PictureBox)
-                                    {
-                                        if (count == 256)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 40 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 40)
-                                        {
-                                            ((PictureBox)item).BackColor = RightColor;
-                                            break;
-                                        }
-                                        count++;
-                                    }
-                                }
+                                count++;
                             }
                         }
-                        else if (radioBtn32.Checked)
-                        {
-                            if (IsPressedLeft == true)
-                            {
-                                foreach (var item in Field.Controls)
-                                {
-                                    if (item is PictureBox)
-                                    {
-                                        if (count == 1024)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 20 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 20)
-                                        {
-                                            ((PictureBox)item).BackColor = LeftColor;
-                                            break;
-                                        }
-                                        count++;
-                                    }
-                                }
-                            }
-                            else if (IsPressedRight == true)
-                            {
-                                foreach (var item in Field.Controls)
-                                {
-                                    if (item is PictureBox)
-                                    {
-                                        if (count == 1024)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 20 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 20)
-                                        {
-                                            ((PictureBox)item).BackColor = RightColor;
-                                            break;
-                                        }
-                                        count++;
-                                    }
-                                }
-                            }
-                        }
+
                         break;
                     }
                 case item.Erase:
                     {
-                        if (radioBtn16.Checked)
+                        if (IsPressedLeft == true)
                         {
-                            if (IsPressedLeft == true)
+                            foreach (var item in Field.Controls)
                             {
-                                foreach (var item in Field.Controls)
+                                if (item is PictureBox)
                                 {
-                                    if (item is PictureBox)
+                                    if (count == numberOfPixels)
+                                        break;
+
+                                    x = ((PictureBox)item).Location.X;
+                                    y = ((PictureBox)item).Location.Y;
+
+                                    if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + divCord &&
+                                        e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + divCord)
                                     {
-                                        if (count == 256)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 40 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 40)
-                                        {
-                                            ((PictureBox)item).BackColor = RightColor;
-                                            break;
-                                        }
-                                        count++;
+                                        ((PictureBox)item).BackColor = RightColor;
+                                        break;
                                     }
-                                }
-                            }
-                        }
-                        else if (radioBtn32.Checked)
-                        {
-                            if (IsPressedLeft == true)
-                            {
-                                foreach (var item in Field.Controls)
-                                {
-                                    if (item is PictureBox)
-                                    {
-                                        if (count == 1024)
-                                            break;
-                                        x = ((PictureBox)item).Location.X;
-                                        y = ((PictureBox)item).Location.Y;
-                                        if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + 20 && e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + 20)
-                                        {
-                                            ((PictureBox)item).BackColor = RightColor;
-                                            break;
-                                        }
-                                        count++;
-                                    }
+                                    count++;
                                 }
                             }
                         }
@@ -319,95 +242,83 @@ namespace PixelArt
 
         private void PixelMouseUp(object sender, MouseEventArgs e) // Якщо кнопка миші віджата то ...
         {
-
             IsPressedLeft = IsPressedRight = false;
         }
 
         private void SetPixel() // Функція для заповнення поля пікселями по яких згодом будуть малювати
         {
+            int n = 0;
+            int size = 0;
+            int step = 0;
+
             if (radioBtn16.Checked)
             {
-                for (int i = 0; i < 16; i++)
-                {
-                    for (int j = 0; j < 16; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.Size = new Size(40, 40);
-                        pic.Location = new Point(4 + 44 * j, 4 + 44 * i);
-                        pic.BackColor = Color.White;
-                        pic.MouseClick += PixelMouseClick;
-                        pic.MouseDown += PixelMouseDown;
-                        pic.MouseMove += PixelMouseMove;
-                        pic.MouseUp += PixelMouseUp;
-                        Field.Controls.Add(pic);
-                    }
-                }
+                n = 16;
+                size = 40;
+                step = 4;
             }
             if (radioBtn32.Checked)
             {
-                for (int i = 0; i < 32; i++)
+                n = 32;
+                size = 20;
+                step = 2;
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
                 {
-                    for (int j = 0; j < 32; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.Size = new Size(20, 20);
-                        pic.Location = new Point(2 + 22 * j, 2 + 22 * i);
-                        pic.BackColor = Color.White;
-                        pic.MouseClick += PixelMouseClick;
-                        pic.MouseDown += PixelMouseDown;
-                        pic.MouseMove += PixelMouseMove;
-                        pic.MouseUp += PixelMouseUp;
-                        Field.Controls.Add(pic);
-                    }
+                    PictureBox pic = new PictureBox();
+                    pic.Size = new Size(size, size);
+                    pic.Location = new Point(step + (step + size) * j, step + (step + size) * i);
+                    pic.BackColor = Color.White;
+                    pic.MouseClick += PixelMouseClick;
+                    pic.MouseDown += PixelMouseDown;
+                    pic.MouseMove += PixelMouseMove;
+                    pic.MouseUp += PixelMouseUp;
+                    Field.Controls.Add(pic);
                 }
             }
         }
 
         private void LoadMap() // Функція для загрузки поля
         {
+            int n = 0;
+            int size = 0;
+            int step = 0;
+
             SetPixel();
+
             if (radioBtn16.Checked)
             {
-                for (int i = 0; i <= 16; i++)
-                {
-                    for (int j = 0; j <= 16; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.BackColor = Color.Black;
-                        pic.Location = new Point(0, 44 * i);
-                        pic.Size = new Size(708, 4);
-                        Field.Controls.Add(pic);
-                    }
-                    for (int j = 0; j <= 16; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.BackColor = Color.Black;
-                        pic.Location = new Point(44 * i, 0);
-                        pic.Size = new Size(4, 708);
-                        Field.Controls.Add(pic);
-                    }
-                }
+                n = 16;
+                size = 40;
+                step = 4;
             }
             if (radioBtn32.Checked)
             {
-                for (int i = 0; i <= 32; i++)
+                n = 32;
+                size = 20;
+                step = 2;
+            }
+
+            for (int i = 0; i <= n; i++)
+            {
+                for (int j = 0; j <= n; j++)
                 {
-                    for (int j = 0; j <= 32; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.BackColor = Color.Black;
-                        pic.Location = new Point(0, 22 * i);
-                        pic.Size = new Size(706, 2);
-                        Field.Controls.Add(pic);
-                    }
-                    for (int j = 0; j <= 32; j++)
-                    {
-                        PictureBox pic = new PictureBox();
-                        pic.BackColor = Color.Black;
-                        pic.Location = new Point(22 * i, 0);
-                        pic.Size = new Size(2, 706);
-                        Field.Controls.Add(pic);
-                    }
+                    PictureBox pic = new PictureBox();
+                    pic.BackColor = Color.Black;
+                    pic.Location = new Point(0, (size + step) * i);
+                    pic.Size = new Size(n * size + (n + 1) * step, step);
+                    Field.Controls.Add(pic);
+                }
+                for (int j = 0; j <= n; j++)
+                {
+                    PictureBox pic = new PictureBox();
+                    pic.BackColor = Color.Black;
+                    pic.Location = new Point((size + step) * i, 0);
+                    pic.Size = new Size(step, n * size + (n + 1) * step);
+                    Field.Controls.Add(pic);
                 }
             }
         }
@@ -419,31 +330,29 @@ namespace PixelArt
 
         private bool CheckEmptyArt() // Функція для перевірки чи пусте зараз поле
         {
-            int amount = 0;
+            int count = 0;
+            int numberOfPixels = 0;
+
             if (radioBtn16.Checked)
             {
-                foreach (var item in Field.Controls)
-                {
-                    if (amount == 1024)
-                        break;
-                    if (((PictureBox)item).BackColor != Color.White)
-                        return false;
-                    amount++;
-                }
-                return true;
+                numberOfPixels = 256;
             }
-            else
+            else if (radioBtn32.Checked)
             {
-                foreach (var item in Field.Controls)
-                {
-                    if (amount == 256)
-                        break;
-                    if (((PictureBox)item).BackColor != Color.White)
-                        return false;
-                    amount++;
-                }
-                return true;
+                numberOfPixels = 1024;
             }
+
+            foreach (var item in Field.Controls)
+            {
+                if (count == numberOfPixels)
+                    break;
+
+                if (((PictureBox)item).BackColor != Color.White)
+                    return false;
+
+                count++;
+            }
+            return true;
         }
 
         private void radioBtn32_CheckedChanged(object sender, EventArgs e) // Якщо розмір поля було змінено то ...
@@ -612,26 +521,25 @@ namespace PixelArt
 
         private void ClearFieldBtn_Click(object sender, EventArgs e) // Функція для очищення поля
         {
-            int amount = 0;
+            int count = 0;
+            int numberOfPixels = 0;
+
             if (radioBtn16.Checked)
             {
-                foreach (var item in Field.Controls)
-                {
-                    if (amount == 256)
-                        break;
-                    ((PictureBox)item).BackColor = Color.White;
-                    amount++;
-                }
+                numberOfPixels = 256;
             }
-            if (radioBtn32.Checked)
+            else if (radioBtn32.Checked)
             {
-                foreach (var item in Field.Controls)
-                {
-                    if (amount == 1024)
-                        break;
-                    ((PictureBox)item).BackColor = Color.White;
-                    amount++;
-                }
+                numberOfPixels = 1024;
+            }
+
+            foreach (var item in Field.Controls)
+            {
+                if (count == numberOfPixels)
+                    break;
+
+                ((PictureBox)item).BackColor = Color.White;
+                count++;
             }
         }
 
