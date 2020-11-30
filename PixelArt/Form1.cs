@@ -160,7 +160,6 @@ namespace PixelArt
             int count = 0;
             int divCord = 0;
             int numberOfPixels = 0;
-            Color color = Color.Empty;
 
             FirstCord = (Point)sender.GetType().GetProperty("Location").GetValue(sender);
 
@@ -179,15 +178,6 @@ namespace PixelArt
             {
                 case item.Pencil:
                     {
-                        if (IsPressedLeft == true)
-                        {
-                            color = LeftColor;
-                        }
-                        else if (IsPressedRight == true)
-                        {
-                            color = RightColor;
-                        }
-
                         foreach (var item in Field.Controls)
                         {
                             if (item is PictureBox)
@@ -201,7 +191,14 @@ namespace PixelArt
                                 if (e.X + FirstCord.X >= x && e.X + FirstCord.X <= x + divCord &&
                                     e.Y + FirstCord.Y >= y && e.Y + FirstCord.Y <= y + divCord)
                                 {
-                                    ((PictureBox)item).BackColor = color;
+                                    if (IsPressedLeft == true)
+                                    {
+                                        ((PictureBox)item).BackColor = LeftColor;
+                                    }
+                                    else if (IsPressedRight == true)
+                                    {
+                                        ((PictureBox)item).BackColor = RightColor;
+                                    }
                                     break;
                                 }
                                 count++;
@@ -335,11 +332,11 @@ namespace PixelArt
 
             if (radioBtn16.Checked)
             {
-                numberOfPixels = 256;
+                numberOfPixels = 1024;
             }
             else if (radioBtn32.Checked)
             {
-                numberOfPixels = 1024;
+                numberOfPixels = 256;
             }
 
             foreach (var item in Field.Controls)
@@ -473,6 +470,177 @@ namespace PixelArt
             ColorFillBtn.BackColor = Color.FromKnownColor(KnownColor.Control);
             EraseBtn.BackColor = Color.LightCyan;
             currItem = item.Erase;
+        }
+
+        private (Color[,], int, int) FillMatrix()
+        {
+            int i = 0;
+            int j = 0;
+            int size = 0;
+            int numberOfPixels = 0;
+            int count = 0;
+
+            if (radioBtn16.Checked)
+            {
+                size = 16;
+                numberOfPixels = 256;
+            }
+            else if (radioBtn32.Checked)
+            {
+                size = 32;
+                numberOfPixels = 1024;
+            }
+
+            Color[,] colorMatrix = new Color[size, size]; 
+
+            foreach (var item in Field.Controls)
+            {
+                if (count == numberOfPixels)
+                    break;
+
+                if (j == size)
+                {
+                    j = 0;
+                    i++;
+                }
+
+                colorMatrix[i, j] = ((PictureBox)item).BackColor;
+
+                j++;
+                count++;
+            }
+
+            return (colorMatrix, size, numberOfPixels);
+        }
+
+        private void UpdateFiled(Color[,] colorMatrix, int size, int numberOfPixels)
+        {
+            int i = 0;
+            int j = 0;
+            int count = 0;
+
+            foreach (var item in Field.Controls)
+            {
+                if (count == numberOfPixels)
+                    break;
+
+                if (j == size)
+                {
+                    j = 0;
+                    i++;
+                }
+
+                ((PictureBox)item).BackColor = colorMatrix[i, j];
+
+                j++;
+                count++;
+            }
+        }
+
+        private void VerticalBtn_Click(object sender, EventArgs e)
+        {
+            int size = 0;
+            int numberOfPixels = 0;
+            Color[,] colorMatrix;
+
+            (colorMatrix, size, numberOfPixels) = FillMatrix();
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size / 2; j++)
+                {
+                    (colorMatrix[i, j], colorMatrix[i, size - j - 1]) = (colorMatrix[i, size - j - 1], colorMatrix[i, j]);
+                }
+            }
+
+            UpdateFiled(colorMatrix, size, numberOfPixels);
+        }
+
+        private void HorizontalBn_Click(object sender, EventArgs e)
+        {
+            int size = 0;
+            int numberOfPixels = 0;
+            Color[,] colorMatrix;
+
+            (colorMatrix, size, numberOfPixels) = FillMatrix();
+
+            for (int j = 0; j < size; j++)
+            {
+                for (int i = 0; i < size / 2; i++)
+                {
+                    (colorMatrix[i, j], colorMatrix[size - i - 1, j]) = (colorMatrix[size - i - 1, j], colorMatrix[i, j]);
+                }
+            }
+
+            UpdateFiled(colorMatrix, size, numberOfPixels);
+        }
+
+        private void RotateLeftBtn_Click(object sender, EventArgs e)
+        {
+            int size = 0;
+            int numberOfPixels = 0;
+            Color[,] buf;
+
+            (buf, size, numberOfPixels) = FillMatrix();
+
+            Color[,] colorMatrix = new Color[size, size];
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    colorMatrix[size - j - 1, i] = buf[i, j];
+                }
+            }
+
+            UpdateFiled(colorMatrix, size, numberOfPixels);
+        }
+
+        private void RotateRightBtn_Click(object sender, EventArgs e)
+        {
+            int size = 0;
+            int numberOfPixels = 0;
+            Color[,] buf;
+
+            (buf, size, numberOfPixels) = FillMatrix();
+
+            Color[,] colorMatrix = new Color[size, size];
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    colorMatrix[j, size - i - 1] = buf[i, j];
+                }
+            }
+
+            UpdateFiled(colorMatrix, size, numberOfPixels);
+        }
+
+        private void BlackAndWhiteBtn_Click(object sender, EventArgs e)
+        {
+            int numberOfPixels = 0;
+            int count = 0;
+            int RGB = 0;
+
+            if (radioBtn16.Checked)
+            {
+                numberOfPixels = 256;
+            }
+            else if (radioBtn32.Checked)
+            {
+                numberOfPixels = 1024;
+            }
+
+            foreach (var item in Field.Controls)
+            {
+                if (count == numberOfPixels)
+                    break;
+                RGB = (((PictureBox)item).BackColor.R + ((PictureBox)item).BackColor.G + ((PictureBox)item).BackColor.B) / 3;
+                ((PictureBox)item).BackColor = Color.FromArgb(RGB, RGB, RGB);
+                
+                count++;
+            }
         }
 
         private void ColorMixerBtn_Click(object sender, EventArgs e) // Фукція для виклику готової палітри щоб згодом вибраний колір звідти добавити до своєї палітри

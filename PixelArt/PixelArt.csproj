@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="Images\black_and_white.png" />
     <Content Include="Images\ColorMixer.ico" />
     <Content Include="Images\iconfinder_05_Eraser_2064480.png" />
     <Content Include="Images\iconfinder_cmyk_1055088.png" />
@@ -102,6 +103,10 @@
     <Content Include="Images\iconfinder_Open_1493293.png" />
     <Content Include="Images\iconfinder_pencil_285638.png" />
     <Content Include="Images\iconfinder_pipette_blue_68790.png" />
+    <Content Include="Images\rotate_left.png" />
+    <Content Include="Images\rotate_right.png" />
+    <Content Include="Images\shape_flip_horizontal.png" />
+    <Content Include="Images\shape_flip_vertical.png" />
     <Content Include="Images\iconfinder_Tools_-_common_fixed-12_1208654.png" />
     <Content Include="Images\PixelArt.ico" />
     <Content Include="Images\SavePhoto.ico" />

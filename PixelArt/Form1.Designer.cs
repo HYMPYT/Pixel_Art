@@ -36,6 +36,8 @@
             this.radioBtn16 = new System.Windows.Forms.RadioButton();
             this.radioBtn32 = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.HorizontalBn = new System.Windows.Forms.Button();
+            this.VerticalBtn = new System.Windows.Forms.Button();
             this.EraseBtn = new System.Windows.Forms.Button();
             this.ColorFillBtn = new System.Windows.Forms.Button();
             this.PipetteBtn = new System.Windows.Forms.Button();
@@ -79,6 +81,9 @@
             this.сохранитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.Field = new System.Windows.Forms.Panel();
+            this.BlackAndWhiteBtn = new System.Windows.Forms.Button();
+            this.RotateLeftBtn = new System.Windows.Forms.Button();
+            this.RotateRightBtn = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -113,7 +118,7 @@
             this.groupBox3.Controls.Add(this.radioBtn16);
             this.groupBox3.Controls.Add(this.radioBtn32);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox3.Location = new System.Drawing.Point(0, 318);
+            this.groupBox3.Location = new System.Drawing.Point(0, 379);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(363, 83);
             this.groupBox3.TabIndex = 2;
@@ -147,6 +152,11 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.RotateRightBtn);
+            this.groupBox2.Controls.Add(this.RotateLeftBtn);
+            this.groupBox2.Controls.Add(this.BlackAndWhiteBtn);
+            this.groupBox2.Controls.Add(this.HorizontalBn);
+            this.groupBox2.Controls.Add(this.VerticalBtn);
             this.groupBox2.Controls.Add(this.EraseBtn);
             this.groupBox2.Controls.Add(this.ColorFillBtn);
             this.groupBox2.Controls.Add(this.PipetteBtn);
@@ -154,16 +164,40 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Location = new System.Drawing.Point(0, 220);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(363, 98);
+            this.groupBox2.Size = new System.Drawing.Size(363, 159);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Инструменты";
+            // 
+            // HorizontalBn
+            // 
+            this.HorizontalBn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("HorizontalBn.BackgroundImage")));
+            this.HorizontalBn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.HorizontalBn.Location = new System.Drawing.Point(307, 26);
+            this.HorizontalBn.Name = "HorizontalBn";
+            this.HorizontalBn.Size = new System.Drawing.Size(50, 50);
+            this.HorizontalBn.TabIndex = 5;
+            this.toolTip1.SetToolTip(this.HorizontalBn, "Отразить по горизонтали");
+            this.HorizontalBn.UseVisualStyleBackColor = true;
+            this.HorizontalBn.Click += new System.EventHandler(this.HorizontalBn_Click);
+            // 
+            // VerticalBtn
+            // 
+            this.VerticalBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("VerticalBtn.BackgroundImage")));
+            this.VerticalBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.VerticalBtn.Location = new System.Drawing.Point(238, 26);
+            this.VerticalBtn.Name = "VerticalBtn";
+            this.VerticalBtn.Size = new System.Drawing.Size(50, 50);
+            this.VerticalBtn.TabIndex = 4;
+            this.toolTip1.SetToolTip(this.VerticalBtn, "Отразить по вертикали");
+            this.VerticalBtn.UseVisualStyleBackColor = true;
+            this.VerticalBtn.Click += new System.EventHandler(this.VerticalBtn_Click);
             // 
             // EraseBtn
             // 
             this.EraseBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("EraseBtn.BackgroundImage")));
             this.EraseBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.EraseBtn.Location = new System.Drawing.Point(238, 26);
+            this.EraseBtn.Location = new System.Drawing.Point(22, 93);
             this.EraseBtn.Name = "EraseBtn";
             this.EraseBtn.Size = new System.Drawing.Size(50, 50);
             this.EraseBtn.TabIndex = 3;
@@ -617,6 +651,42 @@
             this.Field.Size = new System.Drawing.Size(727, 718);
             this.Field.TabIndex = 2;
             // 
+            // BlackAndWhiteBtn
+            // 
+            this.BlackAndWhiteBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("BlackAndWhiteBtn.BackgroundImage")));
+            this.BlackAndWhiteBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BlackAndWhiteBtn.Location = new System.Drawing.Point(94, 93);
+            this.BlackAndWhiteBtn.Name = "BlackAndWhiteBtn";
+            this.BlackAndWhiteBtn.Size = new System.Drawing.Size(50, 50);
+            this.BlackAndWhiteBtn.TabIndex = 6;
+            this.toolTip1.SetToolTip(this.BlackAndWhiteBtn, "Черно белое изображение");
+            this.BlackAndWhiteBtn.UseVisualStyleBackColor = true;
+            this.BlackAndWhiteBtn.Click += new System.EventHandler(this.BlackAndWhiteBtn_Click);
+            // 
+            // RotateLeftBtn
+            // 
+            this.RotateLeftBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("RotateLeftBtn.BackgroundImage")));
+            this.RotateLeftBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.RotateLeftBtn.Location = new System.Drawing.Point(238, 93);
+            this.RotateLeftBtn.Name = "RotateLeftBtn";
+            this.RotateLeftBtn.Size = new System.Drawing.Size(50, 50);
+            this.RotateLeftBtn.TabIndex = 7;
+            this.toolTip1.SetToolTip(this.RotateLeftBtn, "Повернуть влево");
+            this.RotateLeftBtn.UseVisualStyleBackColor = true;
+            this.RotateLeftBtn.Click += new System.EventHandler(this.RotateLeftBtn_Click);
+            // 
+            // RotateRightBtn
+            // 
+            this.RotateRightBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("RotateRightBtn.BackgroundImage")));
+            this.RotateRightBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.RotateRightBtn.Location = new System.Drawing.Point(307, 93);
+            this.RotateRightBtn.Name = "RotateRightBtn";
+            this.RotateRightBtn.Size = new System.Drawing.Size(50, 50);
+            this.RotateRightBtn.TabIndex = 8;
+            this.toolTip1.SetToolTip(this.RotateRightBtn, "Повернуть вправо");
+            this.RotateRightBtn.UseVisualStyleBackColor = true;
+            this.RotateRightBtn.Click += new System.EventHandler(this.RotateRightBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
@@ -699,6 +769,11 @@
         private System.Windows.Forms.ToolStripMenuItem сохранитьToolStripMenuItem;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Panel Field;
+        private System.Windows.Forms.Button HorizontalBn;
+        private System.Windows.Forms.Button VerticalBtn;
+        private System.Windows.Forms.Button BlackAndWhiteBtn;
+        private System.Windows.Forms.Button RotateRightBtn;
+        private System.Windows.Forms.Button RotateLeftBtn;
     }
 }
 
