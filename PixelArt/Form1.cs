@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -23,6 +18,7 @@ namespace PixelArt
 
         private Color FoneColor; // Колір який ми зафарбовуємо заливкою 
         private bool CallFunction = true; //Для контролю виклику функції збереження
+        private bool IsSaved = false; // Для контролю збереженя арта
         private static int count = 1; // Для контролю палітри
         private item currItem;
 
@@ -41,7 +37,7 @@ namespace PixelArt
             Pencil, Pipette, ColorFill, Erase
         }
 
-        private void Fill(Point p) // Функція заливки потрібно переробити викидає тому що рекурсія
+        private void Fill(Point p) // Функція заливки 
         {
             int x;
             int y;
@@ -98,6 +94,7 @@ namespace PixelArt
                         {
                             sender.GetType().GetProperty("BackColor").SetValue(sender, RightColor);
                         }
+                        IsSaved = false;
                         break;
                     }
 
@@ -126,6 +123,7 @@ namespace PixelArt
                         {
                             Fill(FirstCord);
                         }
+                        IsSaved = false;
                         break;
                     }
 
@@ -135,6 +133,7 @@ namespace PixelArt
                         {
                             sender.GetType().GetProperty("BackColor").SetValue(sender, RightColor);
                         }
+                        IsSaved = false;
                         break;
                     }
             }
@@ -145,11 +144,13 @@ namespace PixelArt
             if (e.Button == MouseButtons.Left)
             {
                 IsPressedLeft = true;
+                IsSaved = false;
 
             }
             else if (e.Button == MouseButtons.Right)
             {
                 IsPressedRight = true;
+                IsSaved = false;
             }
         }
 
@@ -273,18 +274,21 @@ namespace PixelArt
                     pic.MouseDown += PixelMouseDown;
                     pic.MouseMove += PixelMouseMove;
                     pic.MouseUp += PixelMouseUp;
-                    Field.Controls.Add(pic);
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        this.Field.Controls.Add(pic);
+                    });
                 }
             }
         }
 
-        private void LoadMap() // Функція для загрузки поля
+        private async void LoadMap() // Функція для загрузки поля
         {
             int n = 0;
             int size = 0;
             int step = 0;
 
-            SetPixel();
+            await Task.Run(() => SetPixel());
 
             if (radioBtn16.Checked)
             {
@@ -299,25 +303,28 @@ namespace PixelArt
                 step = 2;
             }
 
-            for (int i = 0; i <= n; i++)
+            await Task.Run(() =>
             {
-                for (int j = 0; j <= n; j++)
+                for (int i = 0; i <= n; i++)
                 {
                     PictureBox pic = new PictureBox();
                     pic.BackColor = Color.Black;
                     pic.Location = new Point(0, (size + step) * i);
                     pic.Size = new Size(n * size + (n + 1) * step, step);
-                    Field.Controls.Add(pic);
-                }
-                for (int j = 0; j <= n; j++)
-                {
-                    PictureBox pic = new PictureBox();
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        this.Field.Controls.Add(pic);
+                    });
+                    pic = new PictureBox();
                     pic.BackColor = Color.Black;
                     pic.Location = new Point((size + step) * i, 0);
                     pic.Size = new Size(step, n * size + (n + 1) * step);
-                    Field.Controls.Add(pic);
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        this.Field.Controls.Add(pic);
+                    });
                 }
-            }
+            });
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -325,19 +332,9 @@ namespace PixelArt
             LoadMap();
         }
 
-        private bool CheckEmptyArt() // Функція для перевірки чи пусте зараз поле
+        private bool CheckEmptyArt(int numberOfPixels) // Функція для перевірки чи пусте зараз поле
         {
             int count = 0;
-            int numberOfPixels = 0;
-
-            if (radioBtn16.Checked)
-            {
-                numberOfPixels = 1024;
-            }
-            else if (radioBtn32.Checked)
-            {
-                numberOfPixels = 256;
-            }
 
             foreach (var item in Field.Controls)
             {
@@ -354,56 +351,31 @@ namespace PixelArt
 
         private void radioBtn32_CheckedChanged(object sender, EventArgs e) // Якщо розмір поля було змінено то ...
         {
+            int numberOfPixels = 0;
+
             if (radioBtn16.Checked)
             {
-                if (!CheckEmptyArt())
-                {
-                    QuestionForm qf = new QuestionForm();
-                    if (qf.ShowDialog() == DialogResult.OK)
-                    {
-                        CallFunction = false;
-                        сохранитьToolStripMenuItem_Click(sender, e);
-                        CallFunction = true;
-                        Field.Controls.Clear();
-                        LoadMap();
-                    }
-                    else if (qf.DialogResult == DialogResult.Ignore)
-                    {
-                        Field.Controls.Clear();
-                        LoadMap();
-                    }
-                }
-                else
-                {
-                    Field.Controls.Clear();
-                    LoadMap();
-                }
+                numberOfPixels = 1024;
             }
-            if (radioBtn32.Checked)
+            else if (radioBtn32.Checked)
             {
-                if (!CheckEmptyArt())
+                numberOfPixels = 256;
+            }
+
+            if (!CheckEmptyArt(numberOfPixels))
+            {
+                QuestionForm qf = new QuestionForm();
+                if (qf.ShowDialog() == DialogResult.OK)
                 {
-                    QuestionForm qf = new QuestionForm();
-                    if (qf.ShowDialog() == DialogResult.OK)
-                    {
-                        CallFunction = false;
-                        сохранитьToolStripMenuItem_Click(sender, e);
-                        CallFunction = true;
-                        Field.Controls.Clear();
-                        LoadMap();
-                    }
-                    else if (qf.DialogResult == DialogResult.Ignore)
-                    {
-                        Field.Controls.Clear();
-                        LoadMap();
-                    }
-                }
-                else
-                {
-                    Field.Controls.Clear();
-                    LoadMap();
+                    CallFunction = false;
+                    сохранитьToolStripMenuItem_Click(sender, e);
+                    CallFunction = true;
                 }
             }
+
+            Field.Controls.Clear();
+            LoadMap();
+            IsSaved = false;
         }
 
         private void PaletteMouseClick(object sender, MouseEventArgs e) // Функція для встановлення кольорів
@@ -472,7 +444,7 @@ namespace PixelArt
             currItem = item.Erase;
         }
 
-        private (Color[,], int, int) FillMatrix()
+        private (Color[,], int, int) FillMatrix() // Заповнення матриці кольорів
         {
             int i = 0;
             int j = 0;
@@ -491,7 +463,7 @@ namespace PixelArt
                 numberOfPixels = 1024;
             }
 
-            Color[,] colorMatrix = new Color[size, size]; 
+            Color[,] colorMatrix = new Color[size, size];
 
             foreach (var item in Field.Controls)
             {
@@ -513,7 +485,7 @@ namespace PixelArt
             return (colorMatrix, size, numberOfPixels);
         }
 
-        private void UpdateFiled(Color[,] colorMatrix, int size, int numberOfPixels)
+        private void UpdateFiled(Color[,] colorMatrix, int size, int numberOfPixels) // Оновлення поля після поворота або відзеркалення
         {
             int i = 0;
             int j = 0;
@@ -537,7 +509,7 @@ namespace PixelArt
             }
         }
 
-        private void VerticalBtn_Click(object sender, EventArgs e)
+        private void VerticalBtn_Click(object sender, EventArgs e) // Відзекралення по вертикалі
         {
             int size = 0;
             int numberOfPixels = 0;
@@ -554,9 +526,11 @@ namespace PixelArt
             }
 
             UpdateFiled(colorMatrix, size, numberOfPixels);
+
+            IsSaved = false;
         }
 
-        private void HorizontalBn_Click(object sender, EventArgs e)
+        private void HorizontalBn_Click(object sender, EventArgs e) // Відзекралення по горизонталі
         {
             int size = 0;
             int numberOfPixels = 0;
@@ -573,9 +547,11 @@ namespace PixelArt
             }
 
             UpdateFiled(colorMatrix, size, numberOfPixels);
+
+            IsSaved = false;
         }
 
-        private void RotateLeftBtn_Click(object sender, EventArgs e)
+        private void RotateLeftBtn_Click(object sender, EventArgs e) // Поворот вліво на 90 градусів
         {
             int size = 0;
             int numberOfPixels = 0;
@@ -594,9 +570,11 @@ namespace PixelArt
             }
 
             UpdateFiled(colorMatrix, size, numberOfPixels);
+
+            IsSaved = false;
         }
 
-        private void RotateRightBtn_Click(object sender, EventArgs e)
+        private void RotateRightBtn_Click(object sender, EventArgs e) // Поворот вправо на 90 градусів
         {
             int size = 0;
             int numberOfPixels = 0;
@@ -615,9 +593,11 @@ namespace PixelArt
             }
 
             UpdateFiled(colorMatrix, size, numberOfPixels);
+
+            IsSaved = false;
         }
 
-        private void BlackAndWhiteBtn_Click(object sender, EventArgs e)
+        private void BlackAndWhiteBtn_Click(object sender, EventArgs e) // Чорно-біле зображення повернути назад поки що неможливо
         {
             int numberOfPixels = 0;
             int count = 0;
@@ -638,9 +618,11 @@ namespace PixelArt
                     break;
                 RGB = (((PictureBox)item).BackColor.R + ((PictureBox)item).BackColor.G + ((PictureBox)item).BackColor.B) / 3;
                 ((PictureBox)item).BackColor = Color.FromArgb(RGB, RGB, RGB);
-                
+
                 count++;
             }
+
+            IsSaved = false;
         }
 
         private void ColorMixerBtn_Click(object sender, EventArgs e) // Фукція для виклику готової палітри щоб згодом вибраний колір звідти добавити до своєї палітри
@@ -709,76 +691,67 @@ namespace PixelArt
                 ((PictureBox)item).BackColor = Color.White;
                 count++;
             }
+
+            IsSaved = false;
         }
 
-        private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e) // Діалог для збереження
         {
+            int numberOfPixels = 0;
+            int size = 0;
+
+            if (radioBtn16.Checked)
+            {
+                numberOfPixels = 256;
+                size = 16;
+            }
+            else if (radioBtn32.Checked)
+            {
+                numberOfPixels = 1024;
+                size = 32;
+            }
+
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "PNG|*.png|JPEG|*.jpg;*.jpeg;*.jpe;*.jfif|BMP|*.bmp";
+            sfd.Filter = "PNG|*.png|ICO|*.ico|BMP|*.bmp";
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                int amount = 0, column = 0, x = 0, y = 0;
+                int amount = 0;
+                int column = 0;
+                int x = 0;
+                int y = 0;
+
                 SolidBrush myBrush = new SolidBrush(Color.White);
                 PictureBox pic = new PictureBox();
                 if (CallFunction)
                 {
-                    if (radioBtn16.Checked)
+                    pic.Size = new Size(size * 5, size * 5);
+                    var bitmap = new Bitmap(pic.Width, pic.Height);
+                    pic.Image = bitmap;
+                    Graphics g = Graphics.FromImage(bitmap);
+                    foreach (var item in Field.Controls)
                     {
-                        pic.Size = new Size(80, 80);
-                        var bitmap = new Bitmap(pic.Width, pic.Height);
-                        pic.Image = bitmap;
-                        Graphics g = Graphics.FromImage(bitmap);
-                        foreach (var item in Field.Controls)
+                        if (amount == numberOfPixels)
+                            break;
+                        if (column == size)
                         {
-                            if (amount == 256)
-                                break;
-                            if (column == 16)
-                            {
-                                column = 0;
-                                y += 5;
-                                x = 0;
-                            }
-                            myBrush.Color = ((PictureBox)item).BackColor;
-                            g.FillRectangle(myBrush, new Rectangle(x, y, 5, 5));
-                            pic.Invalidate();
-                            x += 5;
-                            column++;
-                            amount++;
+                            column = 0;
+                            y += 5;
+                            x = 0;
                         }
-                        myBrush.Dispose();
-                        g.Dispose();
-                        pic.Image.Save(sfd.FileName, ImageFormat.Png);
+                        myBrush.Color = ((PictureBox)item).BackColor;
+                        g.FillRectangle(myBrush, new Rectangle(x, y, 5, 5));
+                        pic.Invalidate();
+                        x += 5;
+                        column++;
+                        amount++;
                     }
-                    if (radioBtn32.Checked)
-                    {
-                        pic.Size = new Size(160, 160);
-                        var bitmap = new Bitmap(pic.Width, pic.Height);
-                        pic.Image = bitmap;
-                        Graphics g = Graphics.FromImage(bitmap);
-                        foreach (var item in Field.Controls)
-                        {
-                            if (amount == 1024)
-                                break;
-                            if (column == 32)
-                            {
-                                column = 0;
-                                y += 5;
-                                x = 0;
-                            }
-                            myBrush.Color = ((PictureBox)item).BackColor;
-                            g.FillRectangle(myBrush, new Rectangle(x, y, 5, 5));
-                            pic.Invalidate();
-                            x += 5;
-                            column++;
-                            amount++;
-                        }
-                        myBrush.Dispose();
-                        g.Dispose();
-                        pic.Image.Save(sfd.FileName);
-                    }
+                    myBrush.Dispose();
+                    g.Dispose();
+                    pic.Image.Save(sfd.FileName, ImageFormat.Png);
                 }
                 else
                 {
+                    MessageBox.Show("Calc false");
                     if (radioBtn32.Checked)
                     {
                         pic.Size = new Size(80, 80);
@@ -834,34 +807,36 @@ namespace PixelArt
                         pic.Image.Save(sfd.FileName);
                     }
                 }
+                IsSaved = true;
             }
         }
 
-        private void создатьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void создатьToolStripMenuItem_Click(object sender, EventArgs e) // Створити пусте поле
         {
-            if (!CheckEmptyArt())
+            int numberOfPixels = 0;
+
+            if (radioBtn16.Checked)
+            {
+                numberOfPixels = 256;
+            }
+            else if (radioBtn32.Checked)
+            {
+                numberOfPixels = 1024;
+            }
+
+            if (!CheckEmptyArt(numberOfPixels))
             {
                 QuestionForm qf = new QuestionForm();
                 if (qf.ShowDialog() == DialogResult.OK)
                 {
                     сохранитьToolStripMenuItem_Click(sender, e);
-                    Field.Controls.Clear();
-                    LoadMap();
-                }
-                else if (qf.DialogResult == DialogResult.Ignore)
-                {
-                    Field.Controls.Clear();
-                    LoadMap();
                 }
             }
-            else
-            {
-                Field.Controls.Clear();
-                LoadMap();
-            }
+            Field.Controls.Clear();
+            LoadMap();
         }
 
-        private void открытьToolStripMenuItem_Click(object sender, EventArgs e)
+        private void открытьToolStripMenuItem_Click(object sender, EventArgs e) // Відкрити збережений арт
         {
             MessageBox.Show("Можно открывать только те рисунки которые вы сохраняли", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             OpenFileDialog ofd = new OpenFileDialog();
@@ -948,6 +923,77 @@ namespace PixelArt
                             MessageBox.Show("Чтобы загрузить данное изображение выберите другой размер поля.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         }
                     }
+                }
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e) // Якщо закриваємо на хрестик
+        {
+            if (e.CloseReason == CloseReason.WindowsShutDown)
+                return;
+
+            int numberOfPixels = 0;
+            int size = 0;
+
+
+            if (radioBtn16.Checked)
+            {
+                numberOfPixels = 256;
+                size = 16;
+            }
+            else if (radioBtn32.Checked)
+            {
+                numberOfPixels = 1024;
+                size = 32;
+            }
+
+            if (!CheckEmptyArt(numberOfPixels) & !IsSaved)
+            {
+                switch (MessageBox.Show(this, "Вы уверены что хотите выйти без сохранения?", "Выход", MessageBoxButtons.YesNoCancel))
+                {
+                    case DialogResult.No:
+                        SaveFileDialog sfd = new SaveFileDialog();
+                        sfd.Filter = "PNG|*.png|ICO|*.ico|BMP|*.bmp";
+                        if (sfd.ShowDialog() == DialogResult.OK)
+                        {
+                            int amount = 0;
+                            int column = 0;
+                            int x = 0;
+                            int y = 0;
+                            SolidBrush myBrush = new SolidBrush(Color.White);
+                            PictureBox pic = new PictureBox();
+
+                            pic.Size = new Size(size * 5, size * 5);
+                            var bitmap = new Bitmap(pic.Width, pic.Height);
+                            pic.Image = bitmap;
+                            Graphics g = Graphics.FromImage(bitmap);
+                            foreach (var item in Field.Controls)
+                            {
+                                if (amount == numberOfPixels)
+                                    break;
+                                if (column == size)
+                                {
+                                    column = 0;
+                                    y += 5;
+                                    x = 0;
+                                }
+                                myBrush.Color = ((PictureBox)item).BackColor;
+                                g.FillRectangle(myBrush, new Rectangle(x, y, 5, 5));
+                                pic.Invalidate();
+                                x += 5;
+                                column++;
+                                amount++;
+                            }
+                            myBrush.Dispose();
+                            g.Dispose();
+                            pic.Image.Save(sfd.FileName);
+                        }
+                        break;
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
